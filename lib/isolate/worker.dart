@@ -51,7 +51,6 @@ class Worker {
         data.message["sendPort"] = sendPort;
         data.message["identifier"] = data.identifier;
         if (data.isolateProcess == IsolateProcess.JSON_DECODING) {
-          _jsonDecodingInIsolate(json)
         }
       }
     }, onError: (error) {

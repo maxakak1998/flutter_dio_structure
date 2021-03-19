@@ -25,15 +25,17 @@ class APIManager {
     switch(apiType){
       case APIType.test:
         path="get";
+        baseUrl="http://httpbin.org/";
         method=describeEnum(HttpMethod.get);
         break;
       case APIType.testPost:
         path="post";
+        baseUrl="http://httpbin.org/";
+
         method=describeEnum(HttpMethod.post);
         break;
       case APIType.placementDetail:
         path="placement/2034";
-        baseUrl="https://dev3.vinceredev.com/api/v2/";
         break;
     }
     return new RequestOptions(
