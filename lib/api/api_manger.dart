@@ -35,7 +35,7 @@ class APIManager {
         method=describeEnum(HttpMethod.post);
         break;
       case APIType.placementDetail:
-        path="placement/2034";
+        path="placement";
         break;
     }
     return new RequestOptions(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:mysample/model/placement_detail.dart';
 import 'api/api_controller.dart';
 import 'api/api_manger.dart';
+import 'api/api_response.dart';
 import 'http.dart'; // make dio as global top-level variable
 
 // Must be top-level function
@@ -56,9 +57,10 @@ class _MyHomePageState extends State<MyHomePage> {
           FlatButton(
             child: const Text("Request"),
             onPressed: () {
-              APIController.request<PlacementDetail>(
+              APIController.request<APIResponse<PlacementDetail>>(
                   apiType: APIType.placementDetail,
-                  createFrom: () => PlacementDetail()).then((value) {
+                  extraPath: "/2122",
+                  createFrom: () => APIResponse<PlacementDetail>(data: PlacementDetail())).then((value) {
                 setState(() {
                   _text = value.data.toJson().toString();
                 });
@@ -75,3 +77,4 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+

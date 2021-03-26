@@ -15,24 +15,44 @@ import 'dio_interceptor.dart';
 Map<String, dynamic> authHeaders;
 
 class APIController {
-  static Future<Response<T>> request<T>(
+  static Future<T> request<T>(
       {GenericObject<T> createFrom,
       @required APIType apiType,
       Map<String, dynamic> params,
       Dio tokenDio,
+      String extraPath,
       Map<String, dynamic> body}) async {
     assert(apiType != null);
-
     final RequestOptions option = APIManager.getOption(apiType);
     option.queryParameters = params;
+    if (extraPath != null) option.path += extraPath;
     option.data = body;
-    if (createFrom != null) option.extra = {"createBy": createFrom()};
-    Response<T> response;
+    Response response;
     if (tokenDio != null)
-      response = await tokenDio.request<T>(option.path, options: option);
+      response = await tokenDio.request(option.path, options: option);
     else
-      response = await dio.request<T>(option.path, options: option);
+      response = await dio.request(option.path, options: option);
+    final apiWrapper = createFrom();
+    if (response.statusCode == 200) {
+      ///If you use the object that implementing from BaseAPIWrapper
+      if (apiWrapper is BaseAPIWrapper) {
+        apiWrapper.response = response;
 
-    return response;
+        ///Ensure that you send right object for the APIWrapper, because we will use this object to call fromJSON() if it implements from the Decoder abstract class
+        ///so if data in APIWrapper you send is either null or object not implementing from Decoder, we just give you whatever the response is
+        if (apiWrapper.data != null && apiWrapper.data is Decoder) {
+          apiWrapper.data = apiWrapper.data.fromJSON(response.data);
+        }
+        return apiWrapper..data = response.data;
+      } else {
+        ///If you want to use another object type such as primitive type, but you need to ensure that the response type will match your expected type
+        if (response.data is T) {
+          return response.data;
+        } else
+          throw FormatException(
+              "Can not match the $T type with ${response.data.runtimeType}");
+      }
+    }
+    return response.data;
   }
 }

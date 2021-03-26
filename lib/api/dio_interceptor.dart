@@ -14,7 +14,7 @@ enum API_ERROR {
 }
 
 BaseOptions baseOptions = new BaseOptions(
-    baseUrl: "https://dev3.vinceredev.com/api/v2/",
+    baseUrl: "https://test.vinceredev.com/api/v2/",
     connectTimeout: 5000,
     contentType: Headers.jsonContentType,
     responseType: ResponseType.json,
@@ -44,6 +44,7 @@ final requestInterceptor =
 });
 
 final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
+
   switch (error.type) {
     case DioErrorType.CONNECT_TIMEOUT:
       // TODO: Handle this case.
@@ -55,7 +56,11 @@ final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
       // TODO: Handle this case.
       break;
     case DioErrorType.RESPONSE:
-      // TODO: Handle this case.
+      switch (error.response.statusCode) {
+        case 404:
+          print("Handle this error");
+          return error.response;
+      }
       break;
     case DioErrorType.CANCEL:
       if (CancelToken.isCancel(error)) {
@@ -71,7 +76,7 @@ final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
         );
         authHeaders = {
           'id-token':
-          "eyJraWQiOiJtUTBnSTNUXC9QdW1kV241V0tVblVnNStLYTUxK0dQNktrckVCSTg0TlgzWT0iLCJhbGciOiJSUzI1NiJ9.eyJvcmlnaW5fanRpIjoiNWEwYjJiNTYtNzYzMC00ZjRlLTlmZDUtZTQ0NzVmODUyM2U0Iiwic3ViIjoiZGQ5YzRhYzQtMGMxOC00NGQwLTk5YTQtNTYyZjQ0OTYzNzhiIiwiYXVkIjoiNnJuMTIwY210aTVjaW83bXNrcHJoMXNqZ2UiLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwiZXZlbnRfaWQiOiIxM2RkM2U2ZS1iYjA1LTQxMmYtYWViMS00YmI1YjY5MjkzZWIiLCJ0b2tlbl91c2UiOiJpZCIsImF1dGhfdGltZSI6MTU5NjQ0NTMzMywiaXNzIjoiaHR0cHM6XC9cL2NvZ25pdG8taWRwLmFwLXNvdXRoZWFzdC0xLmFtYXpvbmF3cy5jb21cL2FwLXNvdXRoZWFzdC0xX2JMVEZiTkVqaCIsImNvZ25pdG86dXNlcm5hbWUiOiJkZDljNGFjNC0wYzE4LTQ0ZDAtOTlhNC01NjJmNDQ5NjM3OGIiLCJleHAiOjE1OTY1MTc5NDksImlhdCI6MTU5NjUxNDM0OSwiZW1haWwiOiJxdWFuZy5uZ3V5ZW5AYXBwcy1jeWNsb25lLmNvbSJ9.TOCJz19zescRMmOa-xB9PGcpkqQGT_6sBbM3NpBWxk18Blkp1eDJ4XtOksYCOmmGC7EP2naJR9tIJDqqOBis8ZP7IOYHFXQjbhxy2OeA13hr42W5J25AKd9lINQHHJ_llQ0Dkp3eSxGb4eEHbdZ3jUn_zjAg5mNkOIbrAMrVID6v5iSmjXGbeVEBOxnnHuYg9tXS3PGyPPPiWUTRDC7P3P8J4nKnScuvMlPjJOB3tl3Cps5A0hz9tw2TfiUXmLwLZhgbcJ4L-8U6ke9B9ZgHEeuQd9e8qCd121S2AQ",
+              "eyJraWQiOiJtUTBnSTNUXC9QdW1kV241V0tVblVnNStLYTUxK0dQNktrckVCSTg0TlgzWT0iLCJhbGciOiJSUzI1NiJ9.eyJzdWIiOiI0ZmFiODdkNS1kOTJiLTRkNmItODRkYy0wMzMyZmFiNmFjOWIiLCJhdWQiOiI2cm4xMjBjbXRpNWNpbzdtc2twcmgxc2pnZSIsImVtYWlsX3ZlcmlmaWVkIjp0cnVlLCJldmVudF9pZCI6IjVkYTAzYWQ2LTdkZWEtNDdiOS1iN2I0LWZlYmYwYWRkMDA5NSIsInRva2VuX3VzZSI6ImlkIiwiYXV0aF90aW1lIjoxNjE2NzMwMjkzLCJpc3MiOiJodHRwczpcL1wvY29nbml0by1pZHAuYXAtc291dGhlYXN0LTEuYW1hem9uYXdzLmNvbVwvYXAtc291dGhlYXN0LTFfYkxURmJORWpoIiwiY29nbml0bzp1c2VybmFtZSI6IjRmYWI4N2Q1LWQ5MmItNGQ2Yi04NGRjLTAzMzJmYWI2YWM5YiIsImV4cCI6MTYxNjczMzk1NiwiaWF0IjoxNjE2NzMwMzU3LCJlbWFpbCI6Im5obmdoaWEyNDA2QGdtYWlsLmNvbSJ9.THSjPIJnEm1sFkKt4gywEo1yY9ByYv_BklXPxPk3fVyw9Nx_NBUzVpT-r-6vXILjZ_TV5NEZee9AX_PxwMMeUxK4FbeFvNSgtLydIlkM-vilSkxnZRdRsKG96q6z7qz89pd7vhBL1oanBtIWFx2zVx0lw65vkmf8R0XjOBvIcfbXqJRGSEnZtAZXo73PX7wffuGq-cZMbvMK_ERibTPwjyZ0aaQvXl58cT9U2POutEKpKaOIpl4E7dYeIjFkEvEyq1f05x318xvQ9XGMkhowf7JbTbIbAkmNsYIY20IA4As8OliU0Z5_G8_RDS0oCY-ugfDQa0Etq2m6zYAKeyKouw",
           'x-api-key': "7351252421522e1ea2182d5790d8f67c",
         };
         error.request.headers.addAll(authHeaders);
@@ -81,10 +86,8 @@ final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
             data: error.request.data,
             queryParameters: error.request.queryParameters,
             options: error.request);
-
         return prevResponse;
-      }
-      else {
+      } else {
         final isOffline = _checkConnection(error);
         if (isOffline) return await _handleOfflineRequest(error);
         return error;
@@ -96,14 +99,7 @@ final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
 });
 
 final responseInterceptor = InterceptorsWrapper(onResponse: (response) async {
-  if (response.request.extra != null) {
-    final instance = response.request.extra["createBy"];
-    if (instance != null && instance is Decoder) {
-      try {
-        response.data = instance.fromJSON(response.data);
-      } catch (e) {}
-    }
-  }
+
   return response;
 });
 
