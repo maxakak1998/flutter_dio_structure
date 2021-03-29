@@ -30,7 +30,7 @@
        APIController.request<String>(apiType: APIType.testPost))
 ```
        
-  ##  **Use with Response implemetens from BaseAPIWrapper*
+  ## **Use with Response implemetens from BaseAPIWrapper**
 ```dart
    APIController.request<APIResponse<PlacementDetail>>(
                     apiType: APIType.placementDetail,
