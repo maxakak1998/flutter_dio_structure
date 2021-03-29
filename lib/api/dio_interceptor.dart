@@ -44,7 +44,6 @@ final requestInterceptor =
 });
 
 final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
-
   switch (error.type) {
     case DioErrorType.CONNECT_TIMEOUT:
       // TODO: Handle this case.
@@ -95,7 +94,7 @@ final errorInterceptor = InterceptorsWrapper(onError: (DioError error) async {
       // TODO: Handle this case.
       break;
   }
-  return error;
+  return error.response;
 });
 
 final responseInterceptor = InterceptorsWrapper(onResponse: (response) async {

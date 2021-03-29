@@ -46,6 +46,17 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   String _text = "";
 
+  _buildButton(String title, Function callback) {
+    title ??= "";
+    return FlatButton(
+      color: Colors.amber,
+      child: Text(title),
+      onPressed: () {
+        if (callback != null) callback();
+      },
+    );
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -53,20 +64,74 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       body: Container(
         padding: EdgeInsets.all(16),
-        child: Column(children: [
-          FlatButton(
-            child: const Text("Request"),
-            onPressed: () {
-              APIController.request<APIResponse<PlacementDetail>>(
-                  apiType: APIType.placementDetail,
-                  extraPath: "/2122",
-                  createFrom: () => APIResponse<PlacementDetail>(data: PlacementDetail())).then((value) {
-                setState(() {
-                  _text = value.data.toJson().toString();
-                });
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          _buildButton("Request with primitive type", () {
+            APIController.request<String>(apiType: APIType.testPost)
+                .then((value) {
+              setState(() {
+                _text = value;
               });
-            },
-          ),
+            });
+          }),
+          _buildButton("Request with primitive type wrapped by APIResponse",
+              () {
+            APIController.request<APIResponse<String>>(
+                apiType: APIType.testPost,
+                createFrom: (response) => APIResponse(response: response)).then((value) {
+              setState(() {
+                _text = value.data;
+              });
+            });
+          }),
+          _buildButton("Request GET with class implementing BaseAPIWrapper",
+              () {
+            APIController.request<APIResponse<PlacementDetail>>(
+                    apiType: APIType.placementDetail,
+                    extraPath: "/2122",
+                    createFrom: (response) => APIResponse(data: PlacementDetail(),response: response))
+                .then((value) {
+              setState(() {
+                _text = value.response.data.toString();
+              });
+            });
+          }),
+          _buildButton(
+              "Request GET with class implementing BaseAPIWrapper and convert the response to the list",
+              () {
+            APIController.request<APIListResponse<Owner>>(
+                apiType: APIType.allOwners,
+                createFrom: (response) =>
+                    APIListResponse(createBy: Owner(),response: response)).then((value) {
+              setState(() {
+                _text = value.data.toString();
+              });
+            });
+          }),
+          _buildButton(
+              "Request GET with class implementing BaseAPIWrapper in fail case ",
+              () {
+            APIController.request<APIResponse<PlacementDetail>>(
+                    apiType: APIType.placementDetail,
+                    extraPath: "/22122",
+                    createFrom: (response) => APIResponse(data: PlacementDetail()))
+                .then((value) {
+              setState(() {
+                _text = value.data.toJson().toString();
+              });
+            }).catchError((e) {
+              _text = e.data.toString();
+              setState(() {});
+            });
+          }),
+          _buildButton("Request POST", () {
+            APIController.request<String>(
+                apiType: APIType.testPost,
+                body: {"my message": "hello"}).then((value) {
+              setState(() {
+                _text = value;
+              });
+            });
+          }),
           Expanded(
             child: SingleChildScrollView(
               child: Text(_text),
@@ -77,4 +142,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-

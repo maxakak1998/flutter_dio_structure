@@ -20,3 +20,26 @@ class PlacementDetail extends Decoder<PlacementDetail> {
     return PlacementDetail.fromJson(json);
   }
 }
+@JsonSerializable()
+class Owner extends Decoder<Owner>{
+
+  int id;
+  String email, fullName;
+  String photo;
+
+  Owner({
+    this.id,
+    this.email,
+    this.photo,
+    this.fullName
+  });
+
+  factory Owner.fromJson(Map<String, dynamic> json) =>_$OwnerFromJson(json);
+  Map<String, dynamic> toJson() => _$OwnerToJson(this);
+
+  @override
+  Owner fromJSON(Map<String, dynamic> json) {
+    return Owner.fromJson(json);
+  }
+
+}

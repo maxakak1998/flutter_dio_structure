@@ -23,6 +23,7 @@ class APIController {
       String extraPath,
       Map<String, dynamic> body}) async {
     assert(apiType != null);
+
     final RequestOptions option = APIManager.getOption(apiType);
     option.queryParameters = params;
     if (extraPath != null) option.path += extraPath;
@@ -32,27 +33,20 @@ class APIController {
       response = await tokenDio.request(option.path, options: option);
     else
       response = await dio.request(option.path, options: option);
-    final apiWrapper = createFrom();
-    if (response.statusCode == 200) {
-      ///If you use the object that implementing from BaseAPIWrapper
-      if (apiWrapper is BaseAPIWrapper) {
-        apiWrapper.response = response;
+    T apiWrapper;
+    if (createFrom != null) apiWrapper = createFrom(response);
 
-        ///Ensure that you send right object for the APIWrapper, because we will use this object to call fromJSON() if it implements from the Decoder abstract class
-        ///so if data in APIWrapper you send is either null or object not implementing from Decoder, we just give you whatever the response is
-        if (apiWrapper.data != null && apiWrapper.data is Decoder) {
-          apiWrapper.data = apiWrapper.data.fromJSON(response.data);
-        }
-        return apiWrapper..data = response.data;
+    if (response.statusCode == 200 || response.statusCode == 201) {
+      if (apiWrapper is BaseAPIWrapper) return apiWrapper;
+
+      ///If you want to use another object type such as primitive type, but you need to ensure that the response type will match your expected type
+      if (response.data is T) {
+        return response.data;
       } else {
-        ///If you want to use another object type such as primitive type, but you need to ensure that the response type will match your expected type
-        if (response.data is T) {
-          return response.data;
-        } else
-          throw FormatException(
-              "Can not match the $T type with ${response.data.runtimeType}");
+        throw ErrorResponse(response,
+            "Can not match the $T type with ${response.data.runtimeType}");
       }
     }
-    return response.data;
+    throw ErrorResponse(response, response.statusMessage);
   }
 }
