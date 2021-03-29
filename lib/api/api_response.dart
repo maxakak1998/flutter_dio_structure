@@ -13,8 +13,8 @@ abstract class BaseAPIWrapper {
   dynamic data;
 
   BaseAPIWrapper({this.response, this.data}) {
-    ///Ensure that you send right object for the APIWrapper, because we will use this object to call fromJSON() if it implements from the  abstract class Decoder
-    ///so if data in APIWrapper you send is either null or object not implementing from Decoder, we just give you whatever the response is
+    ///Ensure that you send right object, because we will use this object to call fromJSON() if it implements from the  abstract class Decoder
+    ///so if data in BaseAPIWrapper you send is either null or object not implementing from Decoder, we just give you whatever the response is
     if (response != null) {
       if (data != null && data is Decoder)
         data = data.fromJSON(response.data);
